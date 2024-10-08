@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import os # Add os import
+import os  # Add os import
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,17 +24,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ij9t=4cmzhxadwm1*ko!=^7+qd07%m!9m-u=_v$kr-_*%!4%h3'
 
 
-
-
 # Add this to the top of the file
-MODE = os.environ.get('MODE', 'development')  # Default to 'development' if not set
+# Default to 'development' if not set
+MODE = os.environ.get('MODE', 'development')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Modify the DEBUG variable
 DEBUG = True if MODE != 'staging' else False
 
 # Modify the ALLOWED_HOSTS variable
-ALLOWED_HOSTS = ['*'] if os.environ.get('MODE', 'development') != 'staging' else os.environ.get('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = ['*'] if os.environ.get(
+    'MODE', 'development') != 'staging' else os.environ.get('ALLOWED_HOSTS', '').split(',')
 
 
 # Application definition
@@ -84,15 +84,27 @@ WSGI_APPLICATION = 'cloud_quest.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nimbo',
-        'USER': 'nimbouser',
-        'PASSWORD': 'nimbo',
-        'HOST': 'localhost'
+if MODE == 'staging':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'nimbo',
+            'USER': 'nimbouser',
+            'PASSWORD': 'nimbo',
+            'HOST': 'localhost'
+        }
+    }
 
 
 # Password validation
@@ -129,7 +141,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR,"..", "static")
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
